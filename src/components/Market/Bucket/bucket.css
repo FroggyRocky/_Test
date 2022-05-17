@@ -1,0 +1,23 @@
+.bucket-container {
+    background-color: #dedede;
+    min-height: 100vh;
+}
+
+.bucket-content {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    padding-top: 50px;
+    margin: 0 10px;
+    flex-wrap: wrap;
+}
+
+.bucket_noItems-container {
+    padding-top: 10%;
+}
+
+@media (max-width:650px) {
+    .bucket-content {
+        justify-content: center;
+    }
+}

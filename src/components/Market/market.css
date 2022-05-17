@@ -1,0 +1,20 @@
+.market-container {
+    background-color: #dedede;
+    min-height: 100vh;
+}
+.market-content {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    padding-top: 50px;
+    margin: 0 10px;
+    flex-wrap: wrap;
+}
+
+
+
+@media (max-width:650px) {
+    .market-content {
+        justify-content: center;
+    }
+}

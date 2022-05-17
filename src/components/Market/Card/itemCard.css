@@ -1,0 +1,30 @@
+.item_card-container {
+    text-align: start;
+    margin: 5px 10px;
+    position: relative;
+    min-height: 216px;
+}
+
+.item_price-container--USD,
+.item_price-container--RUB {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    margin: 0;
+    padding: 0;
+}
+
+.item_price-container--USD {
+    margin-left: -2px;
+}
+
+.item_outOfStock {
+    color: red;
+    padding-left: 10px;
+}
+
+.item_deleteItem {
+    position: absolute;
+    right: 0;
+    margin: 5px;
+}
