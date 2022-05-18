@@ -110,7 +110,6 @@ const refreshLocalStorage = () => async (dispatch, getState) => {
 const getItems = () => async (dispatch) => {
     const res = await UserAPI.getItems()
     if (res.status === 200) {
-        console.log(res.data)
         await dispatch(setItemsData(res.data))
         dispatch(synchronizeReduxBucket())
     }
@@ -139,8 +138,10 @@ const deleteItem = (id) => async (dispatch) => {
 }
 
 const getCurrencyRate = () => async (dispatch) => {
-    await UserAPI.getCurrencyRate()
-     .then(data => dispatch(setCurrencyRate(Math.ceil(data.rates.RUB))))
+    
+   const res =  await UserAPI.getCurrencyRate()
+   dispatch(setCurrencyRate(Math.ceil(res.rates.RUB)))
+    
 }
 
 const filterLocalStorage = (filteredItems) => (dispatch) => {
