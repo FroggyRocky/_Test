@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import ItemCard from './Card/ItemCard'
-import { getItems, addItem } from '../../Redux/reducers/goods'
+import {addItem, synchronizeReduxBucket } from '../../Redux/reducers/goods'
 import './market.css'
 
 function Market(props) {
 
 
-
-
   useEffect(() => {
-    props.getItems()
-
+    props.synchronizeReduxBucket()
   }, [])
 
   function addToBucket(e) {
@@ -21,14 +18,15 @@ function Market(props) {
 
   return <section className="market-container">
     <div className='market-content'>
-      <ItemCard handleClick={addToBucket} cardData={props.goodsData} />
+      <ItemCard currencyRateRUB={props.currencyRateRUB} cardsData={props.goodsData} bucketData={props.bucket} handleClick={addToBucket} />
     </div>
   </section>
-
 }
 
 const mapState = (state) => ({
-  goodsData: state.goods.goodsData
+  bucket:state.goods.bucket,
+  goodsData:state.goods.goodsData,
+  currencyRateRUB:state.goods.currencyRateRUB
 })
 
-export default connect(mapState, { getItems, addItem })(Market)
+export default connect(mapState, { addItem, synchronizeReduxBucket })(Market)

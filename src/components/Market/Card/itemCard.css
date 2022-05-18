@@ -2,7 +2,7 @@
     text-align: start;
     margin: 5px 10px;
     position: relative;
-    min-height: 216px;
+    max-height: 216px;
 }
 
 .item_price-container--USD,

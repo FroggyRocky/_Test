@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -5,9 +7,25 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import HomeIcon from '@mui/icons-material/Home';
 import IconButton from '@mui/material/IconButton';
 import { Link } from 'react-router-dom';
+import { getCurrencyRate, getItems} from '../../Redux/reducers/goods'
 import './header.css'
 
-export default function ButtonAppBar() {
+function Header(props) {
+
+
+  //State started values
+
+
+  useEffect(() => {
+    props.getCurrencyRate()
+      props.getItems()
+    const interval = setInterval(() => {
+      props.getCurrencyRate()
+    }, 2000*60);
+    return () => clearInterval(interval);
+  }, [])
+
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar className='header-container' position="static">
@@ -39,3 +57,9 @@ export default function ButtonAppBar() {
     </Box>
   );
 }
+
+const mapState = (state) => ({
+  
+})
+
+export default connect(mapState, {getItems,getCurrencyRate})(Header)

@@ -16,6 +16,10 @@
     padding-top: 10%;
 }
 
+.bucket-buy {
+    margin: 10px 0;
+}
+
 @media (max-width:650px) {
     .bucket-content {
         justify-content: center;

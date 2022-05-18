@@ -2,13 +2,19 @@ import { UserAPI } from '../../api'
 
 
 const SET_ITEMS_DATA = 'Redux/reducers/goods/SET_ITEMS_DATA'
+const ADD_ITEM = 'Redux/reducers/goods/ADD_ITEM'
+const DELETE_ITEM = 'Redux/reducers/goods/DELETE_ITEM'
 const UPDATE_BUCKET = 'Redux/reducers/goods/UPDATE_BUCKET'
 const SET_BUY_STATE = 'Redux/reducers/goods/BUY'
+const SET_CURRENCY_RATE = 'Redux/reducers/SET_CURRENCY_RATE'
+const SET_OUT_OF_STOCK_STATE = 'Redux/reducers/SET_OUT_OF_STOCK_STATE'
 
 const initialState = {
     goodsData: [],
     bucket: [],
-    buyState: null
+    buyState: null,
+    currencyRateRUB:null,
+    isOutOfStock:false
 }
 
 
@@ -19,16 +25,37 @@ const goods = (state = initialState, action) => {
                 ...state,
                 goodsData: [...action.items]
             }
-        case UPDATE_BUCKET:
+        case ADD_ITEM:
             return {
                 ...state,
-                bucket: [...action.item]
+                bucket: [...state.bucket, action.item]
             }
+        case DELETE_ITEM:
+            return {
+                ...state,
+                bucket:state.bucket.filter(el => el.id !== action.id)
+            }
+            case UPDATE_BUCKET:
+                    return {
+                        ...state,
+                        bucket:[...action.newBucket]
+                    }
         case SET_BUY_STATE:
             return {
                 ...state,
                 buyState: action.state
             }
+            case SET_OUT_OF_STOCK_STATE:
+                return {
+                ...state,
+                isOutOfStock:action.state
+            }
+            case SET_CURRENCY_RATE:
+                return {
+                    ...state,
+                    currencyRateRUB:action.rate
+                }
+                
         default:
             return {
                 ...state
@@ -36,22 +63,35 @@ const goods = (state = initialState, action) => {
     }
 }
 
-const setItemsData = (items) => ({ type: SET_ITEMS_DATA, items })
-const updateBucket = (item) => ({ type: UPDATE_BUCKET, item })
-const setBuyState = (state) => ({ type: SET_BUY_STATE, state })
 
-const refresh = (updatedBucket) => async (dispatch, getState) => {
-    dispatch(updateBucket(updatedBucket))
-    window.localStorage.setItem('bucket', JSON.stringify(updatedBucket))
+const setItemsData = (items) => ({ type: SET_ITEMS_DATA, items })
+const setBuyState = (state) => ({ type: SET_BUY_STATE, state })
+const setCurrencyRate = (rate) => ({type:SET_CURRENCY_RATE, rate})
+const updateBucket = (newBucket) => ({type:UPDATE_BUCKET, newBucket})
+const setOutOfStockState = (state) => ({type:SET_OUT_OF_STOCK_STATE, state})
+
+// synchronize redux bucket with local storage
+const synchronizeReduxBucket = () => async (dispatch) => {
+    await dispatch(refreshLocalStorage())
+    const localStorage = JSON.parse(window.localStorage.getItem('bucket')) || []
+    const outOfStock = localStorage.filter(el => el.amountLeft !== 0) 
+    if(outOfStock.length < localStorage.length) {
+        dispatch(setOutOfStockState(true))
+        dispatch(filterLocalStorage(outOfStock))
+        dispatch(updateBucket(outOfStock))
+    } else {
+    dispatch(updateBucket(localStorage))
+    }
 }
 
-// synchronize alredy added items with database
-const refreshBucket = () => async (dispatch, getState) => {
-    const res = await UserAPI.getItems()
-    if (res.status === 200) {
-        const storageBucket = JSON.parse(window.localStorage.getItem('bucket'))
-        const updatedBucket = storageBucket.map(el => {
-            const founded = res.data.find(item => item.id == el.id)
+// synchronize local storage items with database
+const refreshLocalStorage = () => async (dispatch, getState) => {
+        let items = window.localStorage.getItem('bucket')
+        if(items) {
+    const goodsData = await getState().goods.goodsData
+        const localStorage = JSON.parse(window.localStorage.getItem('bucket'))
+        const updatedBucket = localStorage.map(el => {
+            const founded = goodsData.find(item => item.id == el.id)
             if (founded) {
                 return ({
                     ...el,
@@ -62,66 +102,62 @@ const refreshBucket = () => async (dispatch, getState) => {
                 return el
             }
         })
-        dispatch(refresh(updatedBucket))
-    }
+        window.localStorage.setItem('bucket', JSON.stringify(updatedBucket)) 
+        }
 }
 
+//get items from DB
 const getItems = () => async (dispatch) => {
     const res = await UserAPI.getItems()
     if (res.status === 200) {
-        dispatch(setItemsData(res.data))
+        console.log(res.data)
+        await dispatch(setItemsData(res.data))
+        dispatch(synchronizeReduxBucket())
     }
-}
-
-const decreaseAmount = (id) => async (dispatch, getState) => {
-    const bucket = await getState().goods.bucket
-    const updatedBucket = bucket.map(el => {
-        if (el.id == id) {
-            return ({
-                ...el,
-                count: el.count - 1
-            })
-        } else {
-            return el
-        }
-    })
-    dispatch(refresh(updatedBucket))
-}
-
-
-
-const deleteItem = (id) => async (dispatch, getState) => {
-    const bucket = await getState().goods.bucket
-    const updatedBucket = bucket.filter(el => el.id !== +id)
-    dispatch(refresh(updatedBucket))
 }
 
 
 const addItem = (id) => async (dispatch, getState) => {
-    const goods = await getState().goods.goodsData
-    let bucketItems = await getState().goods.bucket
-    const item = await goods.find(el => el.id === +id)
-    let existingBucketItem = await bucketItems.find(el => el.id === +item.id)
-    if (existingBucketItem) {
-        const filtered = bucketItems.filter(el => el.id !== +item.id)
-        const newItem = [...filtered, { ...existingBucketItem, count: existingBucketItem.count + 1 }]
-        dispatch(refresh(newItem))
+    const newItem = await getState().goods.goodsData.filter(el => el.id == id)
+    const oldStorage  = JSON.parse(window.localStorage.getItem('bucket'))
+    if(oldStorage && Array.isArray(oldStorage)) {
+    const newStorage = JSON.stringify([...oldStorage, ...newItem])
+    window.localStorage.setItem('bucket', newStorage)
+    dispatch(synchronizeReduxBucket())
     } else {
-        const newItem = [...bucketItems, { ...item, count: 1 }]
-        dispatch(refresh(newItem))
+        window.localStorage.setItem('bucket', JSON.stringify([...newItem]))
+        dispatch(synchronizeReduxBucket())
     }
+    
+}
 
+const deleteItem = (id) => async (dispatch) => { 
+    const localStorage = JSON.parse(window.localStorage.getItem('bucket'))
+    const newBucket = localStorage.filter(el => el.id !==id)
+    window.localStorage.setItem('bucket', JSON.stringify(newBucket))
+    dispatch(synchronizeReduxBucket())
+}
+
+const getCurrencyRate = () => async (dispatch) => {
+    await UserAPI.getCurrencyRate()
+     .then(data => dispatch(setCurrencyRate(Math.ceil(data.rates.RUB))))
+}
+
+const filterLocalStorage = (filteredItems) => (dispatch) => {
+    window.localStorage.setItem('bucket', JSON.stringify([...filteredItems]))
 }
 
 const buy = (items) => async (dispatch) => {
     const res = await UserAPI.buy(items)
     if (res.status === 200) {
+        dispatch(getItems())
         dispatch(setBuyState(true))
+        window.localStorage.clear()
     } else {
         dispatch(setBuyState(false))
     }
 }
 
 
-export { getItems, addItem, refreshBucket, decreaseAmount, deleteItem, buy, setBuyState }
+export { getItems, addItem, deleteItem, buy, setBuyState, getCurrencyRate, synchronizeReduxBucket, filterLocalStorage, setOutOfStockState}
 export default goods
