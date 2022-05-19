@@ -7,7 +7,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import HomeIcon from '@mui/icons-material/Home';
 import IconButton from '@mui/material/IconButton';
 import { Link } from 'react-router-dom';
-import { getCurrencyRate, getItems} from '../../Redux/reducers/goods'
+import { getCurrencyRate, getItems } from '../../Redux/reducers/goods'
 import './header.css'
 
 function Header(props) {
@@ -18,17 +18,17 @@ function Header(props) {
 
   useEffect(() => {
     props.getCurrencyRate()
-      props.getItems()
+    props.getItems()
     const interval = setInterval(() => {
       props.getCurrencyRate()
-    }, 2000*60);
+    }, 2000 * 60);
     return () => clearInterval(interval);
   }, [])
 
 
-function getItems() {
-  props.getItems()
-}
+  function getItems() {
+    props.getItems()
+  }
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -63,7 +63,7 @@ function getItems() {
 }
 
 const mapState = (state) => ({
-  
+
 })
 
-export default connect(mapState, {getCurrencyRate, getItems})(Header)
+export default connect(mapState, { getCurrencyRate, getItems })(Header)

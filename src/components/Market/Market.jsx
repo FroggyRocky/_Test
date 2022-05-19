@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import ItemCard from './Card/ItemCard'
-import {addItem, synchronizeReduxBucket } from '../../Redux/reducers/goods'
+import { addItem, synchronizeReduxBucket } from '../../Redux/reducers/goods'
 import './market.css'
 
 function Market(props) {
@@ -24,9 +24,9 @@ function Market(props) {
 }
 
 const mapState = (state) => ({
-  bucket:state.goods.bucket,
-  goodsData:state.goods.goodsData,
-  currencyRateRUB:state.goods.currencyRateRUB
+  bucket: state.goods.bucket,
+  goodsData: state.goods.goodsData,
+  currencyRateRUB: state.goods.currencyRateRUB
 })
 
 export default connect(mapState, { addItem, synchronizeReduxBucket })(Market)

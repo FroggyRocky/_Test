@@ -32,17 +32,17 @@ export default function ItemCard(props) {
           <LocalOfferIcon style={{ fontSize: 20 }} size='small' />:&nbsp;
           <Typography variant="body2">{el.price}&nbsp;USD</Typography>
         </div>
-     {props.currencyRateRUB &&  <div className='item_price-container--RUB'>
+        {props.currencyRateRUB && <div className='item_price-container--RUB'>
           <LocalOfferIcon style={{ fontSize: 20 }} />:&nbsp;
           <Typography variant="body2">{el.price * props.currencyRateRUB}&nbsp;RUB</Typography>
         </div>}
       </CardContent>
-     {(path !== 'bucket' || !path) &&  <CardActions>
-       <Button variant="outlined" disabled={el.amountLeft === 0 || props.bucketData.some(item => item.id === el.id)} onClick={props.handleClick} id={el.id}>
-           'Add to Bucket'
-           </Button>
-           </CardActions>
-           }
+      {(path !== 'bucket' || !path) && <CardActions>
+        <Button variant="outlined" disabled={el.amountLeft === 0 || props.bucketData.some(item => item.id === el.id)} onClick={props.handleClick} id={el.id}>
+          'Add to Bucket'
+        </Button>
+      </CardActions>
+      }
     </Card>
   })
   return <>{cards}</>

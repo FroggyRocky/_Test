@@ -11,7 +11,6 @@ import './bucket.css'
 
 function Bucket(props) {
 
-
     const [buyingState, setBuyingState] = useState()
     const [redirectState, setRedirectState] = useState()
 
@@ -35,22 +34,43 @@ function Bucket(props) {
         props.deleteItem(itemId)
     }
 
-    function closeModal() {
-        props.setOutOfStockState(false)
+
+    function closeModal(modalType) {
+        if (modalType === 'purchase') {
+            props.setBuyState(1);
+            setRedirectState(true);
+            setBuyingState(false)
+        } else if (modalType === 'outOfStock') {
+            props.setOutOfStockState(false)
+            setBuyingState(false)
+        }
+    }
+
+    function createModal() {
+        if (props.buyState !== 1) {
+            return <Modal
+                smallModal={true}
+                closeModal={() => closeModal('purchase')}
+                header={props.buyState === true ? 'Seccessfull' : 'Failure'}
+                text={props.buyState === true ? 'You successfully realised your purchase' : props.customErrMsg || 'Something went wrong'} />
+
+        } else if (props.isOutOfStock) {
+            return <Modal
+                closeModal={() => closeModal('outOfStock')}
+                smallModal={true} header={'Attention'}
+                text={'You have items which are out of stock. They will be deleted'} />
+        }
     }
 
     return <section className='bucket-container'>
         {redirectState && <Navigate replace to='/' />}
-        {props.buyState !== null && <Modal
-            smallModal={true}
-            closeModal={() => { props.setBuyState(null); setRedirectState(true); setBuyingState(false) }}
-            header={props.buyState === true ? 'Seccessfull' : 'Failure'}
-            text={props.buyState === true ? 'You successfully realised your purchase' : props.customErrMsg || 'Something went wrong'} />}
-        {props.isOutOfStock && <Modal closeModal={closeModal} smallModal={true} header={'Attention'} text={'You have items which are out of stock. They will be deleted'} />}
-        {props.bucket.length === 0 ? <Typography className='bucket_noItems-container' component="div" variant="h6">No Items Added</Typography> :
+        {createModal()}
+        {props.bucket.length === 0 ?
+            <Typography className='bucket_noItems-container' component="div" variant="h6">No Items Added</Typography> :
             <>
                 <div className='bucket-content'>
-                    <ItemCard currencyRateRUB={props.currencyRateRUB} cardsData={props.bucket} bucketData={props.bucket} handleDelete={handleDelete} />
+                    <ItemCard currencyRateRUB={props.currencyRateRUB} cardsData={props.bucket}
+                        bucketData={props.bucket} handleDelete={handleDelete} />
                 </div>
                 <div className='bucket-buy'>
                     <Button variant="outlined" onClick={handleBuy} disabled={props.bucket.length === 0 || buyingState === true}>
@@ -67,8 +87,11 @@ const mapState = (state) => ({
     bucket: state.goods.bucket,
     buyState: state.goods.buyState,
     currencyRateRUB: state.goods.currencyRateRUB,
-    isOutOfStock:state.goods.isOutOfStock,
-    customErrMsg:state.goods.customErrMsg
+    isOutOfStock: state.goods.isOutOfStock,
+    customErrMsg: state.goods.customErrMsg
 })
 
-export default connect(mapState, { addItem, deleteItem, buy, setBuyState, synchronizeReduxBucket, filterLocalStorage, setOutOfStockState })(Bucket)
+export default connect(mapState, {
+    addItem, deleteItem, buy, setBuyState, synchronizeReduxBucket,
+    filterLocalStorage, setOutOfStockState
+})(Bucket)

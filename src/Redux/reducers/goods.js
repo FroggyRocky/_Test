@@ -13,7 +13,7 @@ const SET_CUSTOM_ERR = 'Redux/reducers/SET_CUSTOM_ERR'
 const initialState = {
     goodsData: [],
     bucket: [],
-    buyState: null,
+    buyState: 1, // states: 1 - undefined/unstated, true - successfully bought, false - failure //TS Enum - would come in handy 
     currencyRateRUB: null,
     isOutOfStock: false,
     customErrMsg: ''
@@ -144,10 +144,8 @@ const deleteItem = (id) => async (dispatch) => {
 }
 
 const getCurrencyRate = () => async (dispatch) => {
-
     const res = await UserAPI.getCurrencyRate()
     dispatch(setCurrencyRate(Math.ceil(res.rates.RUB)))
-
 }
 
 const filterLocalStorage = (filteredItems) => (dispatch) => {
@@ -171,7 +169,7 @@ const buy = (items) => async (dispatch) => {
         }
         window.localStorage.clear()
     }
-    
+
 }
 
 
