@@ -26,11 +26,15 @@ function Header(props) {
   }, [])
 
 
+function getItems() {
+  props.getItems()
+}
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar className='header-container' position="static">
         <Toolbar>
-          <Link to='/'>
+          <Link to='/' onClick={getItems}>
             <IconButton
               size="large"
               edge="start"
@@ -41,7 +45,7 @@ function Header(props) {
               <HomeIcon />
             </IconButton>
           </Link>
-          <Link to='/bucket'>
+          <Link to='/bucket' onClick={getItems}>
             <IconButton
               size="large"
               edge="start"
@@ -62,4 +66,4 @@ const mapState = (state) => ({
   
 })
 
-export default connect(mapState, {getItems,getCurrencyRate})(Header)
+export default connect(mapState, {getCurrencyRate, getItems})(Header)

@@ -13,12 +13,10 @@ function Bucket(props) {
 
 
     const [buyingState, setBuyingState] = useState()
-    const [isItemOutOfStock, setItemOutOfStockState] = useState(false)
     const [redirectState, setRedirectState] = useState()
 
     useEffect(() => {
         if (props.bucket?.some(el => el.amountLeft === 0)) {
-            setItemOutOfStockState(true)
             const filtered = props.bucket.filter(el => el.amountLeft !== 0)
             props.filterLocalStorage(filtered)
         } else {
@@ -47,7 +45,7 @@ function Bucket(props) {
             smallModal={true}
             closeModal={() => { props.setBuyState(null); setRedirectState(true); setBuyingState(false) }}
             header={props.buyState === true ? 'Seccessfull' : 'Failure'}
-            text={props.buyState === true ? 'You successfully realised your purchase' : 'Something went wrong'} />}
+            text={props.buyState === true ? 'You successfully realised your purchase' : props.customErrMsg || 'Something went wrong'} />}
         {props.isOutOfStock && <Modal closeModal={closeModal} smallModal={true} header={'Attention'} text={'You have items which are out of stock. They will be deleted'} />}
         {props.bucket.length === 0 ? <Typography className='bucket_noItems-container' component="div" variant="h6">No Items Added</Typography> :
             <>
@@ -69,7 +67,8 @@ const mapState = (state) => ({
     bucket: state.goods.bucket,
     buyState: state.goods.buyState,
     currencyRateRUB: state.goods.currencyRateRUB,
-    isOutOfStock:state.goods.isOutOfStock
+    isOutOfStock:state.goods.isOutOfStock,
+    customErrMsg:state.goods.customErrMsg
 })
 
 export default connect(mapState, { addItem, deleteItem, buy, setBuyState, synchronizeReduxBucket, filterLocalStorage, setOutOfStockState })(Bucket)

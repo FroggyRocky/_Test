@@ -1,8 +1,8 @@
 import axios from "axios"
 // baseURL: 'http://localhost:3001/api/',
- // baseURL: 'https://danila-test-market.herokuapp.com/api/',
+ // baseURL: 'https://danila-test-market.herokuapp.com/api/'
 const instance = axios.create({
-    baseURL: 'https://danila-test-market.herokuapp.com/api/',
+    baseURL: 'http://localhost:3001/api/'
 })
 
 
